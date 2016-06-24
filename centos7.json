@@ -29,7 +29,7 @@
       "iso_url": "http://mirrors.vooservers.com/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1511.iso",
       "ssh_wait_timeout": "90m",
       "shutdown_command": "shutdown -P now",
-      "disk_size": 10140,
+      "disk_size": 25140,
       "format": "qcow2",
       "headless": false,
       "accelerator": "kvm",
