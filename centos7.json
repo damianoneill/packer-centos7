@@ -27,6 +27,7 @@
       "iso_checksum": "f90e4d28fa377669b2db16cbcb451fcb9a89d2460e3645993e30e137ac37d284",
       "iso_checksum_type": "sha256",
       "iso_url": "http://mirrors.vooservers.com/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1511.iso",
+			"output_directory": "target",
       "ssh_wait_timeout": "90m",
       "shutdown_command": "shutdown -P now",
       "disk_size": 25140,
