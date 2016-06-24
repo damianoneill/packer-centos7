@@ -25,7 +25,7 @@ CentOS 7 is the next major release with [great new features](http://wiki.centos.
 packer build -only=centos-7-qemu-qcow2 centos7.json
 
 # shrink the image size
-qemu-img convert -c -f qcow2 -O qcow2 -o cluster_size=2M output-centos-7-qemu-qcow2/packer-centos-7-qemu-qcow2.qcow2 output-centos-7-qemu-qcow2/packer-centos-7-qemu-qcow2.compressed.qcow2
+qemu-img convert -c -f qcow2 -O qcow2 -o cluster_size=2M output-centos-7-qemu-qcow2/centos-7-qemu.qcow2 output-centos-7-qemu-qcow2/centos-7-qemu-compressed.qcow2
 
 ```
 
