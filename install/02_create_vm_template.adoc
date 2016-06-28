@@ -1,5 +1,5 @@
 == Creating a template for a Virtual Machine (*INTERNAL ONLY*)
-This section describes the process for creating a KVM template for use in PSM.
+This section describes the process for creating a KVM template for use in projects.
 
 A template is a fully pre-configured operating system image that can used to deploy KVM virtual machines.
 By building one or more KVM templates, you can deploy multiple virtual machine images in your environment.
@@ -21,7 +21,7 @@ https://www.packer.io as an option:
 
 Tasks:
 
-* Create base vm with psm deps installed to clone from into a template
+* Create base vm with dependencies installed to clone from into a template
 * Create configurations for each of the server configs; small(8G), medium(16), large(32) and extra-large(64)
 
 Terms and conventions:
