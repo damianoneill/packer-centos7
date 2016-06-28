@@ -1,0 +1,328 @@
+== Host Setup for KVM install
+
+KVM is a Linux kernel module that allows a user space program access to the hardware virtualization features of Intel and AMD processors. With the KVM kernel module, VMs run as ordinary user-space processes.
+
+Using KVM, one can run multiple virtual machines running unmodified Linux or Windows images. Each virtual machine has private virtualized hardware: a network card, disk, graphics adapter, etc.
+
+KVM uses QEMU for I/O hardware emulation. QEMU is a user-space emulator that can emulate a variety of guest processors on host processors with decent performance. Using the KVM kernel module allows it to approach native speeds.
+
+KVM is managed via the libvirt API and tools.
+
+Let's agree on the terms & conventions:
+
+* Host - The hypervisor or physical server where all VMs are installed.
+* VMs (Virtual Machines) - Virtual servers that are installed on top of a physical server. Some online documents refer to virtual machines as 'domains' or 'guests'.
+
+
+=== Prerequisites
+This installation assumes you are starting from a Centos 7 minimal install.  First thing to do is to check if the host-machine supports
+VM-extensions. On the x86 platform, these are either AMD-V or Intel’s VT-X. In order to check if the installed CPU’s support these
+extensions, we need to check if the vmx (for VT-X) or svm (for AMD-V) flag exists in the cpuinfo output:
+
+[source, bash]
+----
+# egrep -c '(vmx|svm)' /proc/cpuinfo
+----
+If the output is anything other than 0, then the CPU does support the required extensions or the BIOS configuration is not enabled.
+This needs to be resolved before continuing.
+
+Verify that the KVM modules are loaded in the kernel, they should be loaded by default.
+
+[source,bash]
+----
+# lsmod | grep kvm
+kvm_intel             162153  0
+kvm                   525259  1 kvm_intel
+----
+
+==== Disk Space
+When a VM is created, image files are created in the default directory /var/lib/libvirt/images, but you can choose any
+directory you’d like. Regardless of what directory you choose (we will use the default), you will have to verify there is
+enough disk space available in that partition.
+
+*TODO* - provide info on how this should be partitioned.
+
+=== Required RPMs
+There are several RPMs to install that are not part of the base RHEL installation.
+
+To install the virtualization layer we can install the following:
+
+* __qemu-kvm__ is an open source virtualizer that provides hardware emulation for the KVM hypervisor.
+qemu-kvm acts as a virtual machine monitor together with the KVM kernel modules, and emulates the hardware for
+a full system such as a PC and its associated peripherals.
+* __qemu-img__ provides a command line tool for manipulating disk images.
+
+[source,bash]
+----
+# yum install qemu-kvm qemu-img
+----
+
+==== Command Line
+To administrate our platform we can install the following tools:
+
+* __libvirt__ provides the server and host side libraries for interacting with hypervisors and host systems.
+* __virt-install__ provides the command “virt-install” to create your virtual machines from CLI.
+* __libvirt-client__ provides a CL tool to administrate your virtual environment this tool called virsh.
+* __libguestfs-tools__ provides miscellaneous system administrator command line tools for virtual machines
+* __virt-top__ is a 'top(1)'-like utility for showing stats of virtualized domains
+
+[source,bash]
+----
+# yum install libvirt virt-install libvirt-client libguestfs-tools virt-top
+----
+
+At this point the __libvirtd__ service should be started:
+[source,bash]
+----
+# systemctl enable libvirtd && systemctl start libvirtd
+----
+
+==== Graphical User Interface (*__OPTIONALLY__*)
+To remotely access a GUI on our platform we can install:
+
+* __xorg-x11-xauth__ provides the ability to edit and display the authorization information used in connecting to an X server.
+* __dejavu-lgc-sans-fonts__ provides the DejaVu font set.
+
+[source,bash]
+----
+# yum install xorg-x11-xauth dejavu-lgc-sans-fonts
+----
+
+To manage virtual machines through GUI's you can install the following:
+
+* __virt-manager__ provides a GUI tool to administrate your virtual machines.
+* __virt-viewer__ provides a graphical console client for connecting to virtual machines
+
+[source,bash]
+----
+# yum install virt-manager virt-viewer
+----
+
+To confirm this works as expected you can ssh from an X11 console to the host:
+
+
+[source,bash]
+----
+$ ssh -X root@host
+root@host's password:
+Last login: Wed Jun 22 15:34:25 2016 from 172.26.136.104
+[root@localhost ~]# virt-manager
+----
+
+=== Firewall and SELinux setup
+The assumption is that both the Firewall and SELinux will be enabled on the Host.
+
+In Centos 7, the default service is ‘firewalld’, which provides the same packet filtering and forwarding
+capabilities as iptables, but implements rules dynamically and has additional features such as network zones,
+which give you added flexibility when managing different networks.
+
+*TODO* - provide rules for opening the appropriate ports on the firewall for the VM.
+
+We are using SELinux in Enforcing mode, the only thing to consider is the default location for the VM images.  We will use the
+default /var/lib/libvirt/images so there is no requirement to update selinux configuration.
+
+=== Networking Configuration
+To begin, in a minimal install ifconfig is not present.  Centos 7+ uses a different command
+
+[source,bash]
+----
+# ip addr
+----
+or
+
+[source,bash]
+----
+# ip link
+----
+However if you prefer to continue using ifconfig you can install it with
+
+[source,bash]
+----
+# yum install net-tools
+----
+
+For the networking part, our KVM-host will act as a router for its guests and we will need to create a bridge interface
+to allow the guest to communicate out of the host. Guests will use NAT on the host to connect to the real network.
+To enable this setup ip forwarding is required in the kernel parameters.
+
+[source,bash]
+----
+# echo "net.ipv4.ip_forward = 1" | sudo tee /etc/sysctl.d/99-ipforward.conf
+# sysctl -p /etc/sysctl.d/99-ipforward.conf
+----
+
+To provide support for bridging we will need to install the following (this should be installed by libvirt as a dependency):
+
+[source,bash]
+----
+# yum install bridge-utils
+----
+
+We will create a bridge named ‘br0’. Add to your network controller configuration file (i.e. /etc/sysconfig/network-scripts/ifcfg-em1) this line:
+
+You will need to confirm your network controller configuration file, for e.g. it could be em1, eth0, p1p1, enp0s25, etc.  In our example we will use em1.
+
+[source,bash]
+----
+grep -q -F 'BRIDGE=br0' /etc/sysconfig/network-scripts/ifcfg-em1 || echo 'BRIDGE=br0' >> /etc/sysconfig/network-scripts/ifcfg-em1
+----
+
+And create a configuration for the bridge br0
+
+[source,bash]
+----
+cat >/etc/sysconfig/network-scripts/ifcfg-br0  <<EOL
+DEVICE="br0"
+# BOOTPROTO is up to you. If you prefer “static”, you will need to
+# specify the IP address, netmask, gateway and DNS information.
+BOOTPROTO="dhcp"
+IPV6INIT="yes"
+IPV6_AUTOCONF="yes"
+ONBOOT="yes"
+TYPE="Bridge"
+DELAY="0"
+EOL
+----
+
+=== Creating a Sample VM
+To prove that the configuration is setup correctly, we will create a sample virtual machine.
+
+To begin, download a Centos ISO (link may change from below) to build from:
+
+[source,bash]
+----
+# yum install wget
+# wget http://mirror.ox.ac.uk/sites/mirror.centos.org/7/isos/x86_64/CentOS-7-x86_64-Minimal-1511.iso -P /var/lib/libvirt/images/
+----
+
+Once the iso is downloaded we can create a VM as follows:
+
+[source,bash]
+----
+# virt-install \
+    --name vm1 \
+    --ram=1024 \
+    --vcpus=1 \
+    --disk size=4 \
+    --graphics none \
+		--extra-args 'console=ttyS0,115200n8 serial' \
+    --location /var/lib/libvirt/images/CentOS-7-x86_64-Minimal-1511.iso
+----
+
+To confirm this worked fine, after installation you can move between the vm and the host using the following commands:
+[source,bash]
+----
+[root@vm1 ~]#	# push Ctrl + ]
+[root@localhost ~]# # Host's console
+[root@localhost ~]# virsh console vm1
+Connected to domain vm1
+Escape character is ^]
+
+CentOS Linux 7 (Core)
+Kernel 3.10.0-327.el7.x86_64 on an x86_64
+
+localhost login:
+----
+
+
+
+If you want to remove this created VM and start again you can run the following commands (__make sure to confirm the name of the qcow2 file as this might be different__):
+
+[source,bash]
+----
+virsh destroy vm1; virsh undefine vm1; virsh vol-delete --pool default vm1.qcow2
+----
+
+=== Bash all in one script (for setup)
+Assumes Centos 7 & networking is handled by DHCP, if not networking scripts need modified.
+
+[source,bash]
+----
+#!/bin/bash
+#
+# kvm-host-setup   setup kvm on a host
+#
+# description: Configures a host with necessary dependencies to run kvm
+#
+if [ "$#" -ne 1 ]; then
+    echo "interface name required, for e.g. eth0, em1, p1p2, etc."
+    exit 2
+fi
+if [ ! -f /etc/sysconfig/network-scripts/ifcfg-$1 ]; then
+    echo "/etc/sysconfig/network-scripts/ifcfg-$1 not found! Check your interface name in /etc/sysconfig/network-scripts/."
+    exit 2
+fi
+if ! grep -q -i "BOOTPROTO=.*dhcp.*" /etc/sysconfig/network-scripts/ifcfg-$1; then
+    echo "Stopping install, as dhcp does not look to be running, script needs tailored for your environment"
+    exit 2
+fi
+yum -y install qemu-kvm qemu-img
+yum -y install libvirt virt-install libvirt-client libguestfs-tools virt-top
+systemctl enable libvirtd && systemctl start libvirtd
+yum -y install xorg-x11-xauth dejavu-lgc-sans-fonts
+yum -y yum install virt-manager virt-viewer
+yum -y install net-tools
+echo "net.ipv4.ip_forward = 1" | sudo tee /etc/sysctl.d/99-ipforward.conf
+sysctl -p /etc/sysctl.d/99-ipforward.conf
+yum -y install bridge-utils
+grep -q -F 'BRIDGE=br0' /etc/sysconfig/network-scripts/ifcfg-$1 || echo 'BRIDGE=br0' >> /etc/sysconfig/network-scripts/ifcfg-$1
+cat >/etc/sysconfig/network-scripts/ifcfg-br0  <<EOL
+DEVICE="br0"
+# BOOTPROTO is up to you. If you prefer “static”, you will need to
+# specify the IP address, netmask, gateway and DNS information.
+BOOTPROTO="dhcp"
+IPV6INIT="yes"
+IPV6_AUTOCONF="yes"
+ONBOOT="yes"
+TYPE="Bridge"
+DELAY="0"
+EOL
+yum -y install wget
+----
+
+=== Basic virsh commands (to get you started)
+To get you started here are a set of basic commands:
+
+Start Virtual Machine
+[source,bash]
+----
+[root@host ~]# virsh start vm1 # Start Virtual Machine 'vm1'
+Domain vm1 started
+[root@host ~]# virsh start vm1 --console # start and connect to console of 'vm1'
+Domain vm1 started
+Connected to domain vm1
+----
+
+Stop Virtual Machine
+[source,bash]
+----
+[root@host ~]# virsh shutdown vm1 # Stop Virtual Machine 'vm1'
+Domain vm1 is being shutdown
+[root@host ~]# virsh destroy vm1 # Stop forcefully Virtual Machine 'vm1'
+Domain vm1 destroyed
+----
+
+Set auto-start for Virtual Machine
+[source,bash]
+----
+[root@host ~]# virsh autostart vm1 # Enable auto-start for 'vm1'
+Domain vm1 marked as autostarted
+[root@host ~]# virsh autostart --disable vm1 # Disable auto-start for 'vm1'
+Domain vm1 unmarked as autostarted
+----
+
+List all Virtual Machine(s)
+[source,bash]
+----
+[root@host ~]# virsh list # List all active Virtual Machines
+ Id    Name               State
+----------------------------------------
+ 2     vm1                running
+
+[root@host ~]# virsh list --all # List all Virtual Machines included inactives
+ Id    Name               State
+----------------------------------------
+ -     vm1                running
+ -     template           shut off
+ -     Win2k12            shut off
+----

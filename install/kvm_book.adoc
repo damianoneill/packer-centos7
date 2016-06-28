@@ -1,0 +1,8 @@
+= KVM Installation
+:Author:    Damian ONeill
+
+toc::[]
+
+include::01_Host_Setup.adoc[]
+
+include::02_create_vm_template.adoc[]

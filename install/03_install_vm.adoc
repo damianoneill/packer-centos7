@@ -1,0 +1,9 @@
+== Install Virtual Machine on a Host
+This section describes the process for installing and configuring vm in a KVM host.
+
+
+Tasks:
+
+* Support model where multiple PSM / VM versions can sit side by side (active) so that new install can be brought up while old is running and then swap over
+
+virt-install   --import   --hvm   --name=cartman3   --arch=x86_64   --vcpus=4   --ram=8096   --cpu host   --os-type=linux   --virt-type kvm   --disk path=/var/lib/libvirt/images/catman3.qcow2,bus=virtio,format=qcow2,cache=none,io=native   --network bridge=br0,model=virtio

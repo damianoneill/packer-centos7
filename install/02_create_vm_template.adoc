@@ -1,0 +1,38 @@
+== Creating a template for a Virtual Machine (*INTERNAL ONLY*)
+This section describes the process for creating a KVM template for use in PSM.
+
+A template is a fully pre-configured operating system image that can used to deploy KVM virtual machines.
+By building one or more KVM templates, you can deploy multiple virtual machine images in your environment.
+
+Reading:
+
+* http://ostolc.org/kvm-clone-guests-from-template-image.html
+* http://linuxplayer.org/2011/06/create-new-kvm-guest-from-template
+* http://www.unixarena.com/2015/12/how-to-clone-a-kvm-virtual-machines-and-reset-the-vm.html
+* https://nwlinux.com/clone-raw-img-kvm-virtual-machine-on-centos-7-x/
+* http://rohitchauhanit.blogspot.co.uk/2015/11/kvm-snapshot-and-clone.html
+*
+
+https://www.packer.io as an option:
+
+* http://fernandezcuesta.github.io/a-primer-on-devops-agile-tools-packer.html
+* http://www.daily-tux.org/docker/234-build-with-packer-qcow2-images-e-g-for-openstack
+* http://technologist.pro/devops/infrastructure-as-code-create-linux-rhelcentos-base-images-using-packer
+
+Tasks:
+
+* Create base vm with psm deps installed to clone from into a template
+* Create configurations for each of the server configs; small(8G), medium(16), large(32) and extra-large(64)
+
+Terms and conventions:
+
+* A clone is a copy of an existing virtual machine. The existing virtual machine is called the parent of the clone. When the cloning operation is complete, the clone is a separate virtual machine.
+* A snapshot is a copy of the virtual machine's disk file  at a given point in time.  Snapshots provide a change log for the virtual disk and are used to restore a VM to a particular point in time when a failure or system error occurs.
+* A template is a master copy of a virtual machine that can be used to create many clones.
+
+=== Disk Format: Raw vs Qcow2
+let's talk about VM disk formats, since libvirt snapshots can only be performed on certain type of disk formats. There are several types of VM disk formats, but the most common are raw and qcow2 (copy-on-write). Raw disks are presented as-is to the VM without any disk layering and do not support snapshots, whereas qcow2 disks support a range of special features including snapshots, compression and encryption.
+
+Raw disks have better I/O performance than qcow2 because the VM disk space is pre-allocated before the VM is created, as opposed to qcow2, where VM disk space is thinly provisioned and allocated on-the-go as the VM requires it. If you create a VM with a raw disk of 10 GB, you‟ll see that the disk image size for the VM will be exactly 10 GB, whereas for a VM with a qcow2 disk the actual file size will be a fraction of 10 GB (say 2-3 GB) and it will grow as you occupy disk space inside the VM.
+
+Snapshots can be considered a “backup” of a VM's disk, although no actual bits are copied or backed up. The system simply remembers the state of a VM and takes advantage of the copy-on-write capabilities of qcow2. So snapshots are simply a record of where bits stood at a given point in time, not an actual copy of the bits.
