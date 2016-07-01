@@ -26,5 +26,14 @@ do
 done
 
 
+# secure mariadb, not touching the default password for root, at this point its still empty
+mysql -u root <<-EOF
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+DELETE FROM mysql.user WHERE User='';
+DROP DATABASE test;
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%';
+FLUSH PRIVILEGES;
+EOF
+
 # useful third party scripts
 wget http://mysqltuner.pl/ -O /usr/local/sbin/mysqltuner.pl && chmod +x /usr/local/sbin/mysqltuner.pl
