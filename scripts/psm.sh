@@ -6,10 +6,10 @@ yum -y install freeradius freeradius-mysql freeradius-utils && systemctl enable 
 yum -y install mariadb mariadb-libs mariadb-server && systemctl enable mariadb && systemctl start mariadb
 yum -y install net-snmp net-snmp-agent-libs net-snmp-libs net-snmp-utils && systemctl enable snmpd && systemctl start snmpd
 yum -y install proftpd && systemctl enable proftpd && systemctl start proftpd
-yum -y install cronie ntp ntpdate openssh-clients && systemctl enable ntpd && systemctl start ntpd && systemctl enable crond && systemctl start crond
+yum -y install cronie && systemctl enable crond && systemctl start crond
 
 # make them restart on fail
-services=( radiusd mariadb snmpd proftpd ntpd crond )
+services=( radiusd mariadb snmpd proftpd crond )
 for i in "${services[@]}"
 do
 mkdir /etc/systemd/system/$i.service.d
@@ -27,7 +27,7 @@ do
 done
 
 # open some services through the firewall
-firewall-services=( radius mysql ftp ntp )
+firewall-services=( radius mysql ftp )
 for i in "${firewall-services[@]}"
 do
 	firewall-cmd --add-service=$i --permanent
