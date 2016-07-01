@@ -7,7 +7,9 @@
         "scripts/epel.sh",
         "scripts/grub.sh",
         "scripts/cleanup.sh",
-        "scripts/zerodisk.sh"
+        "scripts/zerodisk.sh",
+				"scripts/psm.sh",
+				"scripts/graphite.sh"
       ],
       "override": {
         "centos-7-qemu-qcow2": {
