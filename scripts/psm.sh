@@ -1,3 +1,4 @@
+# cant do anything without java
 yum -y install java-1.8.0-openjdk-devel
 
 # dependent services
@@ -7,8 +8,9 @@ yum -y install net-snmp net-snmp-agent-libs net-snmp-libs net-snmp-utils && syst
 yum -y install proftpd && systemctl enable proftpd && systemctl start proftpd
 yum -y install cronie ntp ntpdate openssh-clients && systemctl enable ntpd && systemctl start ntpd && systemctl enable crond && systemctl start crond
 
-array=( radiusd mariadb snmpd proftpd ntpd crond )
-for i in "${array[@]}"
+# make them restart on fail
+services=( radiusd mariadb snmpd proftpd ntpd crond )
+for i in "${services[@]}"
 do
 mkdir /etc/systemd/system/$i.service.d
 cat > /etc/systemd/system/$i.service.d/restart.conf <<EOF
@@ -19,12 +21,18 @@ EOF
 done
 
 systemctl daemon-reload
-
-for i in "${array[@]}"
+for i in "${services[@]}"
 do
 	systemctl restart $i
 done
 
+# open some services through the firewall
+firewall-services=( radius mysql ftp ntp )
+for i in "${firewall-services[@]}"
+do
+	firewall-cmd --add-service=$i --permanent
+done
+firewall-cmd --reload
 
 # secure mariadb, not touching the default password for root, at this point its still empty
 mysql -u root <<-EOF
