@@ -1,2 +1,1 @@
-# Install root certificates
-yum -y install ca-certificates
+yum -y install ca-certificates net-tools
