@@ -26,13 +26,6 @@ do
 	systemctl restart $i
 done
 
-# open some services through the firewall
-firewall-services=( radius mysql ftp )
-for i in "${firewall-services[@]}"
-do
-	firewall-cmd --add-service=$i --permanent
-done
-firewall-cmd --reload
 
 # secure mariadb, not touching the default password for root, at this point its still empty
 mysql -u root <<-EOF
