@@ -1,3 +1,3 @@
-yum -y erase gtk2 libX11 hicolor-icon-theme avahi freetype bitstream-vera-fonts
+yum -y erase gtk2 libX11 hicolor-icon-theme avahi freetype bitstream-vera-fonts avahi-autoipd avahi-libs avahi
 yum -y clean all
-rm -rf VBoxGuestAdditions_*.iso
+systemctl stop postfix && yum -y remove postfix

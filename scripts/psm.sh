@@ -4,9 +4,12 @@ yum -y install java-1.8.0-openjdk-devel
 # required utilities
 yum -y install git lshw hdparm
 
+# install software in case a MTA is required
+yum -y install sendmail sendmail-cf m4
+
 # dependent services
 yum -y install freeradius freeradius-mysql freeradius-utils && systemctl enable radiusd && systemctl start radiusd
-yum -y install mariadb mariadb-libs mariadb-server && systemctl enable mariadb && systemctl start mariadb
+yum -y install mariadb mariadb-libs mariadb-server mysqltuner holland-mysqldump && systemctl enable mariadb && systemctl start mariadb
 yum -y install net-snmp net-snmp-agent-libs net-snmp-libs net-snmp-utils && systemctl enable snmpd && systemctl start snmpd
 yum -y install proftpd && systemctl enable proftpd && systemctl start proftpd
 yum -y install cronie && systemctl enable crond && systemctl start crond
@@ -31,7 +34,7 @@ done
 
 
 # open some of the services through the firewall
-firewallservices=( radius mysql ftp ntp )
+firewallservices=( radius ftp ntp )
 for i in "${firewallservices[@]}"
 do
 	firewall-cmd --add-service=$i --permanent
@@ -52,5 +55,7 @@ DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%';
 FLUSH PRIVILEGES;
 EOF
 
-# useful third party scripts
-wget http://mysqltuner.pl/ -O /usr/local/sbin/mysqltuner.pl && chmod +x /usr/local/sbin/mysqltuner.pl
+# configure holland to backup the mysql database, at 1:10am and to keep 7 backups in /var/spool/holland
+wget https://raw.githubusercontent.com/holland-backup/holland/master/config/backupsets/default.conf -O /etc/holland/backupsets/default.conf
+sed -i -e 's/backups-to-keep = 1/backups-to-keep = 7/g' /etc/holland/backupsets/default.conf
+(crontab -l ; echo "10 1 * * * /usr/sbin/holland -q bk") | crontab
