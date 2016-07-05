@@ -8,7 +8,7 @@ yum -y install net-snmp net-snmp-agent-libs net-snmp-libs net-snmp-utils && syst
 yum -y install proftpd && systemctl enable proftpd && systemctl start proftpd
 yum -y install cronie && systemctl enable crond && systemctl start crond
 
-# make them restart on fail
+# make the services restart on fail
 services=( radiusd mariadb snmpd proftpd crond )
 for i in "${services[@]}"
 do
@@ -25,6 +25,19 @@ for i in "${services[@]}"
 do
 	systemctl restart $i
 done
+
+
+# open some of the services through the firewall
+firewallservices=( radius mysql ftp ntp )
+for i in "${firewallservices[@]}"
+do
+	firewall-cmd --add-service=$i --permanent
+done
+firewall-cmd --reload
+
+
+# set selinux settings
+# setsebool -P allow_ftpd_full_access=1
 
 
 # secure mariadb, not touching the default password for root, at this point its still empty

@@ -1,1 +1,1 @@
-yum -y install ca-certificates net-tools chrony policycoreutils screen tree vim wget
+yum -y install ca-certificates net-tools chrony screen tree vim wget
