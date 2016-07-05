@@ -4,8 +4,8 @@ yum -y install java-1.8.0-openjdk-devel
 # required utilities
 yum -y install git lshw hdparm
 
-# install software in case a MTA is required
-yum -y install sendmail sendmail-cf m4
+# install software in case a MTA is required and disable it by default
+yum -y install sendmail sendmail-cf m4 && systemctl disable sendmail && systemctl stop sendmail
 
 # dependent services
 yum -y install freeradius freeradius-mysql freeradius-utils && systemctl enable radiusd && systemctl start radiusd
