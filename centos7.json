@@ -21,6 +21,15 @@
       "only": [
         "centos-7-qemu-qcow2"
       ]
+    },
+    {
+      "type": "file",
+      "source": "scripts/usr/sbin/",
+      "destination": "/usr/sbin"
+    },
+    {
+      "type": "shell",
+      "inline": ["chmod +x /usr/sbin/jnr*"]
     }
   ],
   "builders": [

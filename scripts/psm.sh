@@ -1,6 +1,9 @@
 # cant do anything without java
 yum -y install java-1.8.0-openjdk-devel
 
+# required utilities
+yum -y install git lshw hdparm
+
 # dependent services
 yum -y install freeradius freeradius-mysql freeradius-utils && systemctl enable radiusd && systemctl start radiusd
 yum -y install mariadb mariadb-libs mariadb-server && systemctl enable mariadb && systemctl start mariadb
