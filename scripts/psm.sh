@@ -32,9 +32,17 @@ do
 	systemctl restart $i
 done
 
+cat > /usr/lib/firewalld/services/snmp.xml <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>SNMP</short>
+  <description>SNMP protocol</description>
+  <port protocol="udp" port="161"/>
+</service>
+EOF
 
 # open some of the services through the firewall
-firewallservices=( radius ftp ntp )
+firewallservices=( radius ftp ntp snmp )
 for i in "${firewallservices[@]}"
 do
 	firewall-cmd --add-service=$i --permanent
