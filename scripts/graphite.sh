@@ -1,20 +1,7 @@
 PM_DIR="/backups/pms"
 GRAPHITE_SETTINGS="/opt/graphite/webapp/graphite/settings.py"
 
-yum -y install pycairo mod_wsgi python-memcached pyOpenSSL python-pip gcc python-devel
-
-PIP_INSTALLS=( 'django<1.9' 'django-tagging' 'Twisted<12.0' 'zope.interface' 'db-sqlite3' 'carbon<0.9.13' 'whisper' 'graphite-web' )
-
-for i in "${PIP_INSTALLS[@]}"
-do
-  pip install ${i} &> /dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    RESULT="success"
-  else
-    RESULT="FAILED"
-  fi
-  echo ">>> pip installed ${i} (${RESULT})"
-done
+yum -y install graphite-web python-carbon python-whisper
 
 echo ">>> Initializing PM graphing database"
 if ! grep -q "'NAME': '/opt/graphite/storage/graphite.db'," ${GRAPHITE_SETTINGS}; then
