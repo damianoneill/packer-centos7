@@ -1,7 +1,10 @@
 PM_DIR="/backups/pms"
 GRAPHITE_SETTINGS="/opt/graphite/webapp/graphite/settings.py"
 
-yum -y install graphite-web python-carbon python-whisper
+yum -y install python-carbon python-whisper mod_wsgi pycairo django-tagging python-pip policycoreutils-python
+
+# Do not install using yum, though available it installs in the wrong location (/usr/share instead of /opt/graphite)
+pip install graphite-web
 
 echo ">>> Initializing PM graphing database"
 if ! grep -q "'NAME': '/opt/graphite/storage/graphite.db'," ${GRAPHITE_SETTINGS}; then
@@ -26,3 +29,35 @@ if [ ! -d ${PM_DIR} ]; then
   mkdir -p ${PM_DIR}
   echo ">>> created ${PM_DIR}"
 fi
+
+
+semanage fcontext -a -t httpd_sys_content_t /opt/graphite/webapp/graphite/local_settings.pyc
+semanage fcontext -a -t httpd_sys_content_t /opt/graphite/storage/log/webapp
+
+chcon -Rv --type=httpd_sys_content_t /opt/graphite/webapp/graphite/local_settings.pyc
+chcon -Rv --type=httpd_sys_content_t /opt/graphite/storage/log/webapp
+
+setsebool -P httpd_unified 1
+
+chown -R apache:apache /opt/graphite/storage/
+
+
+cat > /lib/systemd/system/carbon-cache.service <<EOF
+[Unit]
+Description=carbon-cache instance  (graphite)
+
+[Service]
+Type = forking
+GuessMainPID = false
+PIDFile = /var/run/carbon-cache-a.pid
+ExecStart=/opt/graphite/bin/carbon-cache.py start
+LimitNOFILE=128000
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl start carbon-cache && systemctl enable carbon-cache
+systemctl start httpd && systemctl enable httpd
