@@ -83,13 +83,13 @@ if [ ! -f ${CARBON_CONFIG} ]; then
 fi
 
 if grep -q "#LOCAL_DATA_DIR" ${CARBON_CONFIG}; then
-		if grep -q "LOCAL_DATA_DIR" ${CARBON_CONFIG}; then
-				sed -i "2i\LOCAL_DATA_DIR = ${HISTORICAL_PM_DIR}" ${CARBON_CONFIG}
-		else
-				sed -i "s:LOCAL_DATA_DIR\s* = .*:LOCAL_DATA_DIR = ${HISTORICAL_PM_DIR}/:" ${CARBON_CONFIG}
-		fi
+	if grep -q "LOCAL_DATA_DIR" ${CARBON_CONFIG}; then
+		sed -i "2i\LOCAL_DATA_DIR = ${HISTORICAL_PM_DIR}" ${CARBON_CONFIG}
+	else
+		sed -i "s:LOCAL_DATA_DIR\s* = .*:LOCAL_DATA_DIR = ${HISTORICAL_PM_DIR}/:" ${CARBON_CONFIG}
+	fi
 else
-		sed -i "s:#LOCAL_DATA_DIR\s* = .*:LOCAL_DATA_DIR = ${HISTORICAL_PM_DIR}/:" ${CARBON_CONFIG}
+	sed -i "s:#LOCAL_DATA_DIR\s* = .*:LOCAL_DATA_DIR = ${HISTORICAL_PM_DIR}/:" ${CARBON_CONFIG}
 fi
 
 sed -i -e "s/MAX_CREATES_PER_MINUTE\s* = .*/MAX_CREATES_PER_MINUTE = 600000/" \
@@ -116,13 +116,13 @@ if [ -f ${GRAPHITE_LOCAL_SETTINGS}.example ]; then
 fi
 
 echo ">>> Configuring SELinux rules"
-semanage fcontext -a -t httpd_sys_content_t /opt/graphite/webapp/graphite/local_settings.pyc > /dev/null 2>&1
-semanage fcontext -a -t httpd_sys_content_t /opt/graphite/storage/log/webapp > /dev/null 2>&1
+#semanage fcontext -a -t httpd_sys_content_t /opt/graphite/webapp/graphite/local_settings.pyc > /dev/null 2>&1
+#semanage fcontext -a -t httpd_sys_content_t /opt/graphite/storage/log/webapp > /dev/null 2>&1
 
-chcon -Rv --type=httpd_sys_content_t /opt/graphite/webapp/graphite/local_settings.pyc /dev/null 2>&1
-chcon -Rv --type=httpd_sys_content_t /opt/graphite/storage/log/webapp /dev/null 2>&1
+#chcon -Rv --type=httpd_sys_content_t /opt/graphite/webapp/graphite/local_settings.pyc /dev/null 2>&1
+#chcon -Rv --type=httpd_sys_content_t /opt/graphite/storage/log/webapp /dev/null 2>&1
 
-setsebool -P httpd_unified 1
+#setsebool -P httpd_unified 1
 
 echo ">>> Initial Database creation"
 python ${GRAPHITE_WEBAPP_DIR}/graphite/manage.py syncdb --noinput > /dev/null 2>&1
