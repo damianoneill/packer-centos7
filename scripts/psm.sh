@@ -41,6 +41,8 @@ cat > /usr/lib/firewalld/services/snmp.xml <<EOF
 </service>
 EOF
 
+firewall-cmd --reload
+
 # open some of the services through the firewall
 firewallservices=( radius ftp ntp snmp )
 for i in "${firewallservices[@]}"
