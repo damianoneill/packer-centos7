@@ -1,10 +1,20 @@
 PM_DIR="/backups/pms"
 GRAPHITE_SETTINGS="/opt/graphite/webapp/graphite/settings.py"
 
-yum -y install python-carbon python-whisper mod_wsgi pycairo django-tagging python-pip policycoreutils-python
+yum -y install pycairo mod_wsgi python-memcached pyOpenSSL python-pip gcc python-devel policycoreutils-python
 
-# Do not install using yum, though available it installs in the wrong location (/usr/share instead of /opt/graphite)
-pip install graphite-web
+PIP_INSTALLS=( 'django<1.9' 'django-tagging' 'Twisted<12.0' 'zope.interface' 'db-sqlite3' 'carbon<0.9.13' 'whisper' 'graphite-web' )
+
+for i in "${PIP_INSTALLS[@]}"
+do
+  pip install ${i} &> /dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    RESULT="success"
+  else
+    RESULT="FAILED"
+  fi
+  echo ">>> pip installed ${i} (${RESULT})"
+done
 
 echo ">>> Initializing PM graphing database"
 if ! grep -q "'NAME': '/opt/graphite/storage/graphite.db'," ${GRAPHITE_SETTINGS}; then
@@ -31,10 +41,10 @@ if [ ! -d ${PM_DIR} ]; then
 fi
 
 
-semanage fcontext -a -t httpd_sys_content_t /opt/graphite/webapp/graphite/local_settings.pyc
+semanage fcontext -a -t httpd_sys_content_t /opt/graphite/webapp/graphite/settings.pyc
 semanage fcontext -a -t httpd_sys_content_t /opt/graphite/storage/log/webapp
 
-chcon -Rv --type=httpd_sys_content_t /opt/graphite/webapp/graphite/local_settings.pyc
+chcon -Rv --type=httpd_sys_content_t /opt/graphite/webapp/graphite/settings.pyc
 chcon -Rv --type=httpd_sys_content_t /opt/graphite/storage/log/webapp
 
 setsebool -P httpd_unified 1
