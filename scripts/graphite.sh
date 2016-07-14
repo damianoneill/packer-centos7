@@ -10,7 +10,7 @@ GRAPHITE_WSGI_CONFIG="${GRAPHITE_CONF_DIR}/graphite.wsgi"
 GRAPHITE_WEBAPP_DIR="${GRAPHITE_DIR}/webapp"
 GRAPHITE_LOCAL_SETTINGS="${GRAPHITE_WEBAPP_DIR}/graphite/local_settings.py"
 
-yum -y install pycairo mod_wsgi python-memcached pyOpenSSL python-pip gcc python-devel policycoreutils-python
+yum -y install pycairo mod_wsgi python-memcached pyOpenSSL python-pip gcc python-devel policycoreutils-python pytz
 
 PIP_INSTALLS=( 'django<1.9' 'django-tagging' 'Twisted<12.0' 'zope.interface' 'db-sqlite3' 'carbon<0.9.13' 'whisper' 'graphite-web' )
 
