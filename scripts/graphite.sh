@@ -147,6 +147,7 @@ LimitNOFILE=128000
 [Install]
 WantedBy=multi-user.target
 EOF
+chmod 644 /lib/systemd/system/carbon.service
 
 echo ">>> Reloading Systemd"
 systemctl daemon-reload

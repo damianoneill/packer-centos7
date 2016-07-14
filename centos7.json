@@ -30,6 +30,15 @@
     {
       "type": "shell",
       "inline": ["chmod +x /usr/sbin/jnr*"]
+    },
+    {
+      "type": "file",
+      "source": "selinux/",
+      "destination": "/root"
+    },
+    {
+      "type": "shell",
+      "inline": ["cd /root && semodule -i graphite.pp && rm -f graphite.*"]
     }
   ],
   "builders": [
