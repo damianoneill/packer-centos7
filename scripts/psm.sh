@@ -1,8 +1,32 @@
 # cant do anything without java
 yum -y install java-1.8.0-openjdk-devel
 
+# install developer deps
+MVN_VER=3.3.9
+wget http://www.eu.apache.org/dist/maven/maven-3/${MVN_VER}/binaries/apache-maven-${MVN_VER}-bin.tar.gz
+tar -zxvf apache-maven-${MVN_VER}-bin.tar.gz -C /usr/local/
+ln -s /usr/local/apache-maven-${MVN_VER} /usr/local/maven
+cat > /etc/profile.d/maven.sh <<EOF
+export M2_HOME=/usr/local/maven
+export MAVEN_HOME=${M2_HOME}
+export PATH=${M2_HOME}/bin:${PATH}
+export MAVEN_OPTS="-Xmx4048m"
+EOF
+rm -f apache-maven-${MVN_VER}-bin.tar.gz
+
+ANT_VER=1.9.7
+wget http://www.eu.apache.org/dist/ant/binaries/apache-ant-${ANT_VER}-bin.tar.gz
+tar -zxvf apache-ant-${ANT_VER}-bin.tar.gz -C /usr/local/
+ln -s /usr/local/apache-ant-${ANT_VER} /usr/local/ant
+cat > /etc/profile.d/ant.sh <<EOF
+export ANT_HOME=/usr/local/ant
+export PATH=${ANT_HOME}/bin:${PATH}
+export ANT_OPTS="-Xmx4048m"
+EOF
+rm -f apache-ant-${ANT_VER}-bin.tar.gz
+
 # required utilities
-yum -y install git lshw hdparm
+yum -y install git svn git-svn lshw hdparm xterm
 
 # install software in case a MTA is required and disable it by default
 yum -y install sendmail sendmail-cf m4 && systemctl disable sendmail && systemctl stop sendmail
