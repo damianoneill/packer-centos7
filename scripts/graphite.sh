@@ -152,8 +152,15 @@ chmod 644 /lib/systemd/system/carbon.service
 echo ">>> Reloading Systemd"
 systemctl daemon-reload
 
+echo ">>> Add rules to firewall for graphite"
 firewall-cmd --add-port=8080/tcp --permanent
 firewall-cmd --reload
+
+echo ">>> Add rules to selinux for graphite"
+pushd /root
+semodule -i graphite.pp
+rm -f graphite.*
+popd
 
 echo ">>> Starting carbon and httpd"
 systemctl start carbon && systemctl enable carbon

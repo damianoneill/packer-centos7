@@ -35,10 +35,6 @@
       "type": "file",
       "source": "selinux/",
       "destination": "/root"
-    },
-    {
-      "type": "shell",
-      "inline": ["cd /root && semodule -i graphite.pp && rm -f graphite.*"]
     }
   ],
   "builders": [
