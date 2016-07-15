@@ -1,6 +1,20 @@
 {
   "provisioners": [
     {
+      "type": "file",
+      "source": "selinux/",
+      "destination": "/root"
+    },
+    {
+      "type": "file",
+      "source": "scripts/usr/sbin/",
+      "destination": "/usr/sbin"
+    },
+    {
+      "type": "shell",
+      "inline": ["chmod +x /usr/sbin/jnr*"]
+    },
+    {
       "type": "shell",
       "scripts": [
         "scripts/base.sh",
@@ -21,20 +35,6 @@
       "only": [
         "centos-7-qemu-qcow2"
       ]
-    },
-    {
-      "type": "file",
-      "source": "scripts/usr/sbin/",
-      "destination": "/usr/sbin"
-    },
-    {
-      "type": "shell",
-      "inline": ["chmod +x /usr/sbin/jnr*"]
-    },
-    {
-      "type": "file",
-      "source": "selinux/",
-      "destination": "/root"
     }
   ],
   "builders": [
