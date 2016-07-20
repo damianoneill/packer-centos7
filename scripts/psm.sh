@@ -62,6 +62,7 @@ cat > /usr/lib/firewalld/services/snmp.xml <<EOF
   <short>SNMP</short>
   <description>SNMP protocol</description>
   <port protocol="udp" port="161"/>
+	<port protocol="udp" port="1620"/>
 </service>
 EOF
 
