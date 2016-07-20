@@ -62,10 +62,8 @@ cat > /usr/lib/firewalld/services/snmp.xml <<EOF
   <short>SNMP</short>
   <description>SNMP protocol</description>
   <port protocol="udp" port="161"/>
-	<port protocol="udp" port="1620"/>
 </service>
 EOF
-
 firewall-cmd --reload
 
 # open some of the services through the firewall
@@ -74,6 +72,7 @@ for i in "${firewallservices[@]}"
 do
 	firewall-cmd --add-service=$i --permanent
 done
+
 firewall-cmd --reload
 
 
