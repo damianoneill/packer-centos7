@@ -2,11 +2,6 @@
   "provisioners": [
     {
       "type": "file",
-      "source": "selinux/",
-      "destination": "/root"
-    },
-    {
-      "type": "file",
       "source": "scripts/usr/sbin/",
       "destination": "/usr/sbin"
     },
