@@ -159,9 +159,3 @@ systemctl restart httpd && systemctl enable httpd
 echo ">>> Add rules to firewall for graphite"
 firewall-cmd --add-port=8080/tcp --permanent
 firewall-cmd --reload
-
-echo ">>> Add rules to selinux for graphite"
-pushd /root
-semodule -i graphite.pp
-rm -f graphite.*
-popd

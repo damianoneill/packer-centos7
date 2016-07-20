@@ -77,7 +77,7 @@ firewall-cmd --reload
 
 
 # set selinux settings
-# setsebool -P allow_ftpd_full_access=1
+sed -i 's/enforcing/disabled/g' /etc/selinux/config
 
 
 # secure mariadb, not touching the default password for root, at this point its still empty
