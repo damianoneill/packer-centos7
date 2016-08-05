@@ -26,7 +26,7 @@ EOF
 rm -f apache-ant-${ANT_VER}-bin.tar.gz
 
 # required utilities
-yum -y install git svn git-svn lshw hdparm xterm expect
+yum -y install git svn git-svn lshw hdparm xterm expect ftp
 
 # install software in case a MTA is required and disable it by default
 yum -y install sendmail sendmail-cf m4 && systemctl disable sendmail && systemctl stop sendmail

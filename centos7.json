@@ -15,6 +15,7 @@
         "scripts/base.sh",
         "scripts/epel.sh",
         "scripts/grub.sh",
+				"scripts/ag.sh",
         "scripts/cleanup.sh",
         "scripts/security.sh",
 				"scripts/psm.sh",
