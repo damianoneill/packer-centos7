@@ -59,6 +59,26 @@
       "only": [
         "psm-java7-qemu-qcow2"
       ]
+    },
+    {
+      "type": "shell",
+      "scripts": [
+        "scripts/base.sh",
+        "scripts/epel.sh",
+        "scripts/grub.sh",
+				"scripts/ag.sh",
+        "scripts/cleanup.sh",
+
+			  "scripts/zerodisk.sh"
+      ],
+      "override": {
+        "centos-7-minimal-qemu-qcow2": {
+          "execute_command": "sh '{{.Path}}'"
+        }
+      },
+      "only": [
+        "centos-7-minimal-qemu-qcow2"
+      ]
     }
   ],
   "builders": [
@@ -73,6 +93,34 @@
       "ssh_wait_timeout": "90m",
       "shutdown_command": "shutdown -P now",
       "disk_size": 25140,
+      "format": "qcow2",
+      "headless": false,
+      "accelerator": "kvm",
+      "http_directory": "http",
+      "http_port_min": 10082,
+      "http_port_max": 10089,
+      "ssh_host_port_min": 2222,
+      "ssh_host_port_max": 2229,
+      "ssh_username": "root",
+      "ssh_password": "changeme",
+      "ssh_port": 22,
+      "net_device": "virtio-net",
+      "disk_interface": "virtio",
+      "boot_command": [
+        "<tab> append initrd=initrd.img inst.text inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+      ]
+    },
+    {
+      "name": "centos-7-minimal-qemu-qcow2",
+			"vm_name": "centos-7-minimal-qemu.qcow2",
+      "type": "qemu",
+      "iso_checksum": "f90e4d28fa377669b2db16cbcb451fcb9a89d2460e3645993e30e137ac37d284",
+      "iso_checksum_type": "sha256",
+      "iso_url": "http://mirrors.vooservers.com/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1511.iso",
+			"output_directory": "target",
+      "ssh_wait_timeout": "90m",
+      "shutdown_command": "shutdown -P now",
+      "disk_size": 5140,
       "format": "qcow2",
       "headless": false,
       "accelerator": "kvm",
