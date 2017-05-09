@@ -256,11 +256,13 @@ if ! grep -q -i "BOOTPROTO=.*dhcp.*" /etc/sysconfig/network-scripts/ifcfg-$1; th
     echo "Stopping install, as dhcp does not look to be running, script needs tailored for your environment"
     exit 2
 fi
+yum -y install epel-release
+yum -y install qemu-system-x86
 yum -y install qemu-kvm qemu-img
 yum -y install libvirt virt-install libvirt-client libguestfs-tools virt-top
 systemctl enable libvirtd && systemctl start libvirtd
 yum -y install xorg-x11-xauth dejavu-lgc-sans-fonts
-yum -y yum install virt-manager virt-viewer
+yum -y install virt-manager virt-viewer
 yum -y install net-tools
 echo "net.ipv4.ip_forward = 1" | sudo tee /etc/sysctl.d/99-ipforward.conf
 sysctl -p /etc/sysctl.d/99-ipforward.conf
