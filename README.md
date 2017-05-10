@@ -14,7 +14,8 @@ This repository can be used to build
 
 ## Requirements
 
-The templates are only tested with [packer](http://www.packer.io/downloads.html) 0.5.2 and later.
+* The templates are only tested with [packer](http://www.packer.io/downloads.html) 0.5.2 and later.
+* This build needs to be run on a Centos Host.
 
 ### CentOS 7
 
