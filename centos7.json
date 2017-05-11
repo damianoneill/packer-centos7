@@ -25,6 +25,7 @@
 				"scripts/security.sh",
 				"scripts/java-setup.sh",
 				"scripts/docker.sh",
+				"scripts/webapps.sh",
 
 				"scripts/zerodisk.sh"
 			],
