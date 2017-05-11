@@ -1,4 +1,4 @@
-yum -y install java-1.8.0-openjdk git wget unzip
+yum -y install java-1.8.0-openjdk-devel git wget unzip
 
 wget https://services.gradle.org/distributions/gradle-3.4.1-bin.zip
 mkdir /opt/gradle
